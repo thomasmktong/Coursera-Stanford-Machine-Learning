@@ -62,23 +62,33 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+A1 = [ones(m,1) X];
 
+Z2 = A1 * Theta1';
+A2 = sigmoid(Z2);
+A2 = [ones(m,1) A2];
 
+Z3 = A2 * Theta2';
+A3 = sigmoid(Z3);
 
+% http://stackoverflow.com/questions/25109239/generate-matrix-of-vectors-from-labels-for-multiclass-classification-vectorized
+Y = repmat(y(:),1,num_labels) == repmat(1:num_labels,m,1);
+J = sum(sum(-Y.*log(A3)-(1-Y).*log(1-A3)))/m;
 
+Theta1_squared = Theta1(:,2:end) .^2;
+Theta2_squared = Theta2(:,2:end) .^2;
+penalty = (lambda/( 2 * m)) * (sum(Theta1_squared(:)) + sum(Theta2_squared(:)));
 
+J = J + penalty;
 
+D3 = A3 - Y;
+D2 = D3 * Theta2(:,2:end) .* sigmoidGradient(Z2);
 
+Theta2_grad = D3' * A2 / m;
+Theta1_grad = D2' * A1 / m;
 
-
-
-
-
-
-
-
-
-
+Theta1_grad = Theta1_grad + (lambda / m) * [zeros(size(Theta1, 1),1) Theta1(:,2:end)];
+Theta2_grad = Theta2_grad + (lambda / m) * [zeros(size(Theta2, 1),1) Theta2(:,2:end)];
 
 % -------------------------------------------------------------
 
